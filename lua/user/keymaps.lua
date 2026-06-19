@@ -13,3 +13,12 @@ map("n", "<C-l>", "<C-w>l")
 -- Save and quit.
 map("n", "<leader>w", "<cmd>write<CR>", { desc = "Save" })
 map("n", "<leader>q", "<cmd>quit<CR>", { desc = "Quit" })
+
+-- Ctrl+S: format (via LSP) then save. Works in normal, insert, and visual.
+vim.keymap.set({ "n", "i", "v" }, "<C-s>", function()
+  -- Leave insert mode first so the cursor lands sensibly after saving.
+  vim.cmd("stopinsert")
+  -- Format with the attached LSP if there is one, then write.
+  vim.lsp.buf.format({ async = false })
+  vim.cmd("write")
+end, { desc = "Format and save" })

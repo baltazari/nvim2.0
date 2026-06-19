@@ -6,6 +6,10 @@ vim.pack.add({
   -- LSP server configurations
   { src = "https://github.com/neovim/nvim-lspconfig" },
 
+  -- Mason: installs and manages LSP servers from inside Neovim
+  { src = "https://github.com/mason-org/mason.nvim" },
+  { src = "https://github.com/mason-org/mason-lspconfig.nvim" },
+
   -- Treesitter (use the "main" branch for Neovim 0.12)
   { src = "https://github.com/nvim-treesitter/nvim-treesitter", version = "main" },
 
