@@ -28,4 +28,6 @@ vim.pack.add({
   -- Completion engine (blink.cmp v2 needs blink.lib too)
   { src = "https://github.com/saghen/blink.lib" },
   { src = "https://github.com/saghen/blink.cmp" },
+  -- status line  
+  { src = "https://github.com/nvim-lualine/lualine.nvim" },
 })

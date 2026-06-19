@@ -33,6 +33,16 @@ require("blink.cmp").setup({
     default = { "lsp", "path", "snippets", "buffer" },
   },
 
+  -- Completion in the ":" command line (and "/" search), same popup menu.
+  cmdline = {
+    enabled = true,
+    keymap = { preset = "cmdline" }, -- Tab to show/select, Enter to run
+    completion = {
+      menu = { auto_show = true },   -- pop up automatically as you type ":"
+      ghost_text = { enabled = true },
+    },
+  },
+
   -- Function signature hints while typing arguments.
   signature = { enabled = true },
 

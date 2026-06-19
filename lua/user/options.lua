@@ -16,5 +16,6 @@ opt.updatetime = 250
 opt.fillchars = { eob = " " }
 opt.ignorecase = true
 opt.smartcase = true
+opt.showmode = false
 -- Needed for the built-in completion menu to behave nicely (Neovim 0.12).
 opt.completeopt = "menu,menuone,noselect,popup"
