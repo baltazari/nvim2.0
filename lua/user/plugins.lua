@@ -16,11 +16,19 @@ vim.pack.add({
   -- Atom One Dark colorscheme
   { src = "https://github.com/navarasu/onedark.nvim" },
 
-  -- File-type icons (used by fzf-lua and the completion menu)
+  -- File-type icons (used across the UI)
   { src = "https://github.com/nvim-tree/nvim-web-devicons" },
 
-  -- Fuzzy finder (Ctrl-Space file search, buffer search)
+  -- Statusline
+  { src = "https://github.com/nvim-lualine/lualine.nvim" },
+
+  -- Fuzzy finder (file search, buffer search)
   { src = "https://github.com/ibhagwan/fzf-lua" },
+
+  -- File explorer sidebar (needs plenary + nui)
+  { src = "https://github.com/nvim-lua/plenary.nvim" },
+  { src = "https://github.com/MunifTanjim/nui.nvim" },
+  { src = "https://github.com/nvim-neo-tree/neo-tree.nvim" },
 
   -- VSCode-style snippet collection
   { src = "https://github.com/rafamadriz/friendly-snippets" },
@@ -28,6 +36,4 @@ vim.pack.add({
   -- Completion engine (blink.cmp v2 needs blink.lib too)
   { src = "https://github.com/saghen/blink.lib" },
   { src = "https://github.com/saghen/blink.cmp" },
-  -- status line  
-  { src = "https://github.com/nvim-lualine/lualine.nvim" },
 })

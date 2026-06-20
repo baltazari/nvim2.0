@@ -1,15 +1,14 @@
 -- ~/.config/nvim/lua/user/lsp.lua
 -- LSP. Server *definitions* come from nvim-lspconfig; per-server *settings*
 -- live in ~/.config/nvim/lsp/<name>.lua (Neovim reads that folder itself).
+-- Servers are installed/enabled by Mason (see lua/user/mason.lua).
 -- Completion is handled by blink.cmp (see lua/user/completion.lua), which
 -- must be required BEFORE this file in init.lua.
--- The server *binaries* must be installed separately (see the instructions).
 
 vim.lsp.enable({
   "rust_analyzer", -- Rust
   "clangd",        -- C and C++
   "basedpyright",  -- Python
-  "csharp_ls",     -- C#
   "zls",           -- Zig
 })
 
@@ -33,11 +32,26 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- How diagnostics are displayed.
+-- Ctrl+S: format (via LSP) then save. Works in normal, insert, and visual.
+vim.keymap.set({ "n", "i", "v" }, "<C-s>", function()
+  vim.cmd("stopinsert")
+  vim.lsp.buf.format({ async = false })
+  vim.cmd("write")
+end, { desc = "Format and save" })
+
+-- How diagnostics are displayed, with VSCode-style gutter icons.
+-- (Icons are Nerd Font glyphs: error circle-x, warning triangle, etc.)
 vim.diagnostic.config({
-  virtual_text = true,
-  signs = true,
+  virtual_text = { prefix = "●" },  -- shows the error message at end of line
   underline = true,
   update_in_insert = false,
   severity_sort = true,
+  signs = {
+    text = {
+      [vim.diagnostic.severity.ERROR] = "\u{f057}", -- circle with x
+      [vim.diagnostic.severity.WARN]  = "\u{f071}", -- warning triangle
+      [vim.diagnostic.severity.INFO]  = "\u{f05a}", -- info circle
+      [vim.diagnostic.severity.HINT]  = "\u{f0eb}", -- lightbulb
+    },
+  },
 })
