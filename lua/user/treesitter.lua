@@ -5,9 +5,10 @@ ts.setup()
 
 -- Parser names. Note: C++ = "cpp", C# = "c_sharp".
 local parsers = {
-  "rust", "cpp", "c", "python", "c_sharp", "zig",
+ "rust", "cpp", "c", "python", "c_sharp", "zig",
+  "go", "gomod", "gosum",
   "lua", "vim", "vimdoc", "query", "markdown",
-}
+  }
 
 -- Installs any missing parsers (runs in the background on first launch).
 ts.install(parsers)

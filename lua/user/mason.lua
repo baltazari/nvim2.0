@@ -17,6 +17,7 @@ require("mason-lspconfig").setup({
     "basedpyright",  -- Python
     --"csharp_ls",     -- C#  (also needs the .NET SDK on your system)
     "zls",           -- Zig
+    "gopls",         --go
   },
   -- Automatically run vim.lsp.enable() for installed servers.
   automatic_enable = true,

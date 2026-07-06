@@ -42,8 +42,8 @@ end
 
 local function win_config()
   local cols, lines = vim.o.columns, vim.o.lines
-  local width = math.floor(cols * 0.8)
-  local height = math.floor(lines * 0.8)
+  local width = math.floor(cols * 0.6)
+  local height = math.floor(lines * 0.6)
   return {
     relative = "editor",
     width = width,

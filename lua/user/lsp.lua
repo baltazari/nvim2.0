@@ -9,7 +9,8 @@ vim.lsp.enable({
   "rust_analyzer", -- Rust
   "clangd",        -- C and C++
   "basedpyright",  -- Python
-  "zls",           -- Zig
+  "zls",  -- Zig
+  "gopls", --go
 })
 
 -- When a server attaches to a buffer: set up keymaps.
