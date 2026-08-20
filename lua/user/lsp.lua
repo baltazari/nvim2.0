@@ -9,6 +9,7 @@ vim.lsp.enable({
   "rust_analyzer", -- Rust
   "clangd",        -- C and C++
   "basedpyright",  -- Python
+  "ruff",          -- python formatter  
   "zls",  -- Zig
   "gopls", --go
 })

@@ -16,6 +16,7 @@ require("mason-lspconfig").setup({
     "clangd",        -- C and C++
     "basedpyright",  -- Python
     --"csharp_ls",     -- C#  (also needs the .NET SDK on your system)
+    "ruff",           --python formatter + linter
     "zls",           -- Zig
     "gopls",         --go
   },
