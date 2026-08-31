@@ -57,3 +57,18 @@ vim.diagnostic.config({
     },
   },
 })
+
+-- Provide a :LspRestart command (native LSP doesn't ship one).
+vim.api.nvim_create_user_command("LspRestart", function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local clients = vim.lsp.get_clients({ bufnr = bufnr })
+  for _, client in ipairs(clients) do
+    vim.lsp.stop_client(client.id)
+  end
+  vim.defer_fn(function()
+    -- Only reload if the buffer is backed by a real file.
+    if vim.api.nvim_buf_get_name(bufnr) ~= "" then
+      vim.cmd("edit")
+    end
+  end, 200)
+end, { desc = "Restart LSP clients for this buffer" })
