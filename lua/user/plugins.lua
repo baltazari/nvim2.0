@@ -36,4 +36,6 @@ vim.pack.add({
   -- Completion engine (blink.cmp v2 needs blink.lib too)
   { src = "https://github.com/saghen/blink.lib" },
   { src = "https://github.com/saghen/blink.cmp" },
+  { src = "https://github.com/windwp/nvim-autopairs" },
+  { src = "https://github.com/folke/trouble.nvim" },
 })
