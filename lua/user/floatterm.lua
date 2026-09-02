@@ -1,6 +1,7 @@
 -- ~/.config/nvim/lua/user/floatterm.lua
 -- Floating terminal manager: up to 6 terminals shown in one floating window
 -- with a numbered bar across the top and an underline under the active one.
+-- Background is transparent (uses the terminal's background).
 --
 -- Keys:
 --   Ctrl-`      (normal mode)   open the terminal panel (existing, or make #1)
@@ -17,16 +18,20 @@ local terms = {}   -- list of terminal buffer numbers
 local current = 0  -- index into `terms`
 local win = nil    -- floating window handle (nil when hidden)
 
--- Colors for the top bar. Active number is bold + underlined.
+-- Transparent panel: no background, colored border + tabs only.
 local function set_highlights()
-  vim.api.nvim_set_hl(0, "FloatTermActive", { bold = true, underline = true })
-  vim.api.nvim_set_hl(0, "FloatTermInactive", { fg = "#7f848e" })
-  vim.api.nvim_set_hl(0, "FloatTermSep", { fg = "#5c6370" })
+  vim.api.nvim_set_hl(0, "FloatTermNormal",   { bg = "NONE" })
+  vim.api.nvim_set_hl(0, "FloatTermBorder",   { fg = "#61afef", bg = "NONE" })
+  vim.api.nvim_set_hl(0, "FloatTermActive",   { fg = "#e5c07b", bold = true, underline = true })
+  vim.api.nvim_set_hl(0, "FloatTermInactive", { fg = "#5c6370" })
+  vim.api.nvim_set_hl(0, "FloatTermSep",      { fg = "#3e4452" })
+  -- Make sure the generic float background is clear too (colorscheme may set it).
+  vim.api.nvim_set_hl(0, "NormalFloat",       { bg = "NONE" })
 end
 
--- Build the "1 | 2 | 3" title, highlighting the active terminal.
+-- Title: terminal icon + "1 | 2 | 3", active one highlighted.
 local function build_title()
-  local chunks = {}
+  local chunks = { { " \u{f489} ", "FloatTermBorder" } }
   for i = 1, #terms do
     local hl = (i == current) and "FloatTermActive" or "FloatTermInactive"
     table.insert(chunks, { " " .. i .. " ", hl })
@@ -34,16 +39,26 @@ local function build_title()
       table.insert(chunks, { "\u{2502}", "FloatTermSep" })
     end
   end
-  if #chunks == 0 then
-    chunks = { { " terminal ", "FloatTermInactive" } }
+  if #terms == 0 then
+    table.insert(chunks, { " terminal ", "FloatTermInactive" })
   end
   return chunks
 end
 
+-- Footer: key hints.
+local function build_footer()
+  return {
+    { "  new ", "FloatTermInactive" }, { "Ctrl-`", "FloatTermActive" },
+    { "  \u{2502}  next ", "FloatTermInactive" }, { "Alt-Tab", "FloatTermActive" },
+    { "  \u{2502}  close ", "FloatTermInactive" }, { "Ctrl-\\", "FloatTermActive" },
+    { "  \u{2502}  hide ", "FloatTermInactive" }, { "Esc ", "FloatTermActive" },
+  }
+end
+
 local function win_config()
   local cols, lines = vim.o.columns, vim.o.lines
-  local width = math.floor(cols * 0.6)
-  local height = math.floor(lines * 0.6)
+  local width = math.floor(cols * 0.8)
+  local height = math.floor(lines * 0.8)
   return {
     relative = "editor",
     width = width,
@@ -54,7 +69,19 @@ local function win_config()
     border = "rounded",
     title = build_title(),
     title_pos = "center",
+    footer = build_footer(),
+    footer_pos = "center",
   }
+end
+
+local function apply_win_style()
+  if win and vim.api.nvim_win_is_valid(win) then
+    -- Point the window's Normal at a cleared float group so the terminal
+    -- buffer doesn't paint a solid background.
+    vim.wo[win].winhighlight =
+      "Normal:NormalFloat,NormalNC:NormalFloat,FloatBorder:FloatTermBorder,FloatTitle:FloatTermBorder,FloatFooter:FloatTermSep"
+    vim.wo[win].winblend = 0 -- raise to ~15 for a frosted look instead of clear
+  end
 end
 
 local function is_open()
@@ -84,9 +111,11 @@ local function show(i)
   local buf = terms[current]
   if not is_open() then
     win = vim.api.nvim_open_win(buf, true, win_config())
+    apply_win_style()
   else
     vim.api.nvim_win_set_buf(win, buf)
     vim.api.nvim_set_current_win(win)
+    apply_win_style()
     refresh_title()
   end
   vim.cmd("startinsert")
@@ -99,18 +128,18 @@ local function create()
   current = #terms
   if not is_open() then
     win = vim.api.nvim_open_win(buf, true, win_config())
+    apply_win_style()
   else
     vim.api.nvim_win_set_buf(win, buf)
     vim.api.nvim_set_current_win(win)
+    apply_win_style()
   end
-  -- Start the shell as a terminal in this buffer (Neovim 0.12 API).
   vim.fn.jobstart(vim.o.shell, { term = true })
   setup_buf_keys(buf)
   refresh_title()
   vim.cmd("startinsert")
 end
 
--- Hide the panel without killing anything.
 function M.hide()
   if is_open() then
     vim.api.nvim_win_close(win, false)
@@ -119,19 +148,16 @@ function M.hide()
   vim.cmd("stopinsert")
 end
 
--- Next terminal (wraps around: last -> first).
 function M.cycle()
   if #terms == 0 then return end
   show(current % #terms + 1)
 end
 
--- Previous terminal (wraps around: first -> last).
 function M.cycle_prev()
   if #terms == 0 then return end
   show((current - 2) % #terms + 1)
 end
 
--- Close the terminal you're currently in.
 function M.close_current()
   if #terms == 0 then return end
   local buf = terms[current]
@@ -148,7 +174,6 @@ function M.close_current()
   show(current)
 end
 
--- Create a new terminal, up to MAX. At the limit it just shows the current one.
 function M.new()
   if #terms >= MAX then
     if not is_open() then show(current) end
@@ -157,8 +182,6 @@ function M.new()
   create()
 end
 
--- Ctrl-` from outside: open existing terminals (or make the first one).
--- Never adds a new terminal when ones already exist.
 function M.toggle()
   if is_open() then
     M.hide()
@@ -169,7 +192,6 @@ function M.toggle()
   end
 end
 
--- If a shell exits on its own (you type `exit`), drop it from the list.
 vim.api.nvim_create_autocmd("TermClose", {
   callback = function(args)
     for i, b in ipairs(terms) do
@@ -184,10 +206,9 @@ vim.api.nvim_create_autocmd("TermClose", {
 })
 
 set_highlights()
--- Re-apply bar colors if you change colorscheme later.
+-- Re-clear the backgrounds whenever the colorscheme reloads (so it stays transparent).
 vim.api.nvim_create_autocmd("ColorScheme", { callback = set_highlights })
 
--- Ctrl-` in normal mode opens/closes the panel.
 vim.keymap.set("n", "<C-`>", function() M.toggle() end, { desc = "Float terminal" })
 
 return M
