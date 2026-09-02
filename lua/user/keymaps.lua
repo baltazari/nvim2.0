@@ -1,4 +1,5 @@
--- General (non-LSP) keymaps. LSP keymaps live in lua/user/lsp.lua.
+-- ~/.config/nvim/lua/user/keymaps.lua
+-- General (non-LSP) keymaps.
 local map = vim.keymap.set
 
 -- Clear search highlight with Esc.
@@ -14,13 +15,14 @@ map("n", "<C-l>", "<C-w>l")
 map("n", "<leader>w", "<cmd>write<CR>", { desc = "Save" })
 map("n", "<leader>q", "<cmd>quit<CR>", { desc = "Quit" })
 
+-- F12: go to definition (jump to where the function/variable is defined).
+map("n", "<F12>", vim.lsp.buf.definition, { desc = "Go to definition" })
+-- Backup key in case the terminal swallows F12.
+map("n", "<leader>d", vim.lsp.buf.definition, { desc = "Go to definition" })
+
 -- Ctrl+S: format (via LSP) then save. Works in normal, insert, and visual.
 vim.keymap.set({ "n", "i", "v" }, "<C-s>", function()
--- F12: go to definition (jump to where the function/variable is defined).
-vim.keymap.set("n", "<F12>", vim.lsp.buf.definition, { desc = "Go to definition" })
-  -- Leave insert mode first so the cursor lands sensibly after saving.
-  vim.cmd("stopinsert")
-  -- Format with the attached LSP if there is one, then write.
-  vim.lsp.buf.format({ async = false })
-  vim.cmd("write")
+  vim.cmd("stopinsert")               -- leave insert mode first
+  vim.lsp.buf.format({ async = false }) -- format with the attached LSP
+  vim.cmd("write")                    -- save
 end, { desc = "Format and save" })
